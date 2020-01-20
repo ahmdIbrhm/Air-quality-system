@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Air Quality Control</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/css/ol.css" type="text/css">
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.1.1/build/ol.js"></script>
+
+</head>
+<body onload="">
+  <ul class="navigation-bar navigation-inverse">
+    <li class="brand"><img src="launcher_icon.png" width="50" height="50"></li>
+    
+    <li class="brand"><a href="#home">Air Quality Control</a></li>
+
+    <div class="left">
+      <li><a href="#manage" onclick="#">Visualize Map</a></li>
+      <li><a href="#manage" onclick="#">Statitics</a></li>
+      <li><a href="#manage" onclick="#">Customize</a></li>
+      <li><a href="#manage" onclick="#">Contact us</a></li>
+    </div>
+  </ul>
+  <div class="container">
+  <div class="row">
+    <br/>
+    <h3 class="room-title">Add a new station</h3>
+    <div class="col-md-3">
+      <div class="content">
+        <h3 class="room-title">Static information</h3>
+        <hr />
+        Id:
+        <input type="text" id="stationId" />
+        Latitude: 
+        <input type="text" id="stationLatitude" onkeypress="validate(event)" />
+        Longtitude:
+        <input type="text" id="stationLongtitude" onkeypress="validate(event)"/>
+        <a class="button success-button toggle-button" onclick="addStation()">Add</a>
+      </div>      
+    </div>
+
+    <div class="col-md-9">
+      <div class="content">
+        <h3 class="room-title">Edit Sensor information</h3>
+        <hr />
+        <select id="selectStations" onchange="selectStationListener()">
+          <option value="selectStation">Select a station</option>
+        </select>
+        <br><br><br>
+        </script>
+        Latitude: <br>
+        <input type="text" id="stationLatitudeEdit" onkeypress="validate(event)" /><br>
+        Longtitude:<br>
+        <input type="text" id="stationLongtitudeEdit" onkeypress="validate(event)"/>
+        <a class="button success-button toggle-button" onclick="editStation()">Edit</a>
+      </div>
+
+      
+    </div>
+
+  </div>
+</div>
+<script type="text/javascript">
+  var select=document.getElementById('selectStations');
+  // get Stations from database
+  var arrayOfStations=[];
+  
+  var xhttp = new XMLHttpRequest();
+  var url="https://territoire.emse.fr/applications/air-quality-control/station-info";
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var response=this.responseText;
+      arrayOfStations=JSON.parse(response);
+      console.log(response);
+
+      console.log(arrayOfStations.length);
+      for (var i = 0; i < arrayOfStations.length; i++){
+          var opt = document.createElement('option');
+          opt.value = arrayOfStations[i].station_id;
+          opt.innerHTML = arrayOfStations[i].station_id;
+          select.appendChild(opt);
+      }
+    }
+  };
+  xhttp.open("GET",url,true);
+  xhttp.send();
+
+
+  function validate(evt) {
+  var theEvent = evt || window.event;
+
+  // Handle paste
+  if (theEvent.type === 'paste') {
+      key = event.clipboardData.getData('text/plain');
+  } else {
+  // Handle key press
+      var key = theEvent.keyCode || theEvent.which;
+      key = String.fromCharCode(key);
+  }
+  var regex = /[0-9]|\./;
+  if( !regex.test(key) ) {
+    theEvent.returnValue = false;
+    if(theEvent.preventDefault) theEvent.preventDefault();
+  }
+}
+function addStation()
+{
+  var newLatitude = document.getElementById('stationLatitude').value;
+  var newLongtitude = document.getElementById('stationLongtitude').value;
+  var newId=document.getElementById('stationId').value;
+  var xhttp = new XMLHttpRequest();
+
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      alert("Done");
+    }
+  };
+  // console.log('{"data":{"station_id":"'+newId+'","latitude":'+ newLatitude+',"longitude":'+ newLongtitude+'}}');
+  xhttp.open("POST", "https://territoire.emse.fr/applications/air-quality-control/station-info", true);
+  xhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+  xhttp.send('{"data":{"station_id":"'+newId+'","latitude":'+ newLatitude+',"longitude":'+ newLongtitude+'}}');
+
+}
+function selectStationListener()
+{
+  var selectedStation = document.getElementById("selectStations").value;
+  var stationLatitudeEdit = document.getElementById('stationLatitudeEdit');
+  var stationLongtitudeEdit = document.getElementById('stationLongtitudeEdit');
+  if(selectedStation=="selectStation")
+  {
+      stationLatitudeEdit.value = "";
+      stationLongtitudeEdit.value = "";
+  }
+  for (var i = 0; i < arrayOfStations.length; i++) {
+    
+    if(arrayOfStations[i].station_id==selectedStation)
+    {
+      var string=arrayOfStations[i].geom;
+      var numbers = string.substring(
+        string.lastIndexOf("(") + 1, 
+        string.lastIndexOf(")")
+      );
+      var lat=numbers.split(" ")[0];
+      var long=numbers.split(" ")[1];
+      stationLatitudeEdit.value = lat;
+      stationLongtitudeEdit.value = long;
+    }
+  }
+}
+function editStation()
+{
+  var selectedStation = document.getElementById("selectStations").value;
+  var stationLatitudeEdit = document.getElementById('stationLatitudeEdit');
+  var stationLongtitudeEdit = document.getElementById('stationLongtitudeEdit');
+  var newLatitude=stationLatitudeEdit.value;
+  var newLongtitude=stationLongtitudeEdit.value;
+
+ 
+
+}
+</script>
+</body>
+</html>
+

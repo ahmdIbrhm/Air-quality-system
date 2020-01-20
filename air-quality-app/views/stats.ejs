@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Air Quality Control</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="http://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.js"></script>
+<link href="http://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.css" rel="stylesheet"/>
+
+</head>
+<body >
+  <ul class="navigation-bar navigation-inverse">
+    <li class="brand"><img src="/images/launcher_icon.png" width="50" height="50"></li>
+    
+    <li class="brand"><a href="#home">Air Quality Control</a></li>
+
+    <div class="left">
+      <li><a href="/" onclick="#">Visualize Map</a></li>
+      <li><a href="/stats" onclick="#">Statitics</a></li>
+      <li><a href="/list" onclick="#">Stations</a></li>
+      
+    </div>
+    <div class="right">
+      <li class="brand"><a href="#home">École des Mines de Saint-Étienne</a></li>
+    </div>
+  </ul>
+  <div class="container">
+  <div class="row">
+    <br/>
+    <h3 class="room-title">Air quality sensors statistics</h3>
+      <br>
+  <br>
+  <br>
+  <br>
+    <div class="col-md-12">
+      <div class="content">
+        <h3 class="room-title">Controller</h3>
+        <hr />
+          <p style="font-size:120%;">Choose a station 
+        <select id="select_station" >
+            
+        </select>
+      </p>
+      <br/>
+      <p style="font-size:120%;">
+          Start Date: <input type="date" id="start_date" />
+        </p>
+        <br/>
+      <p style="font-size:120%;">
+          Start Time: <input type="text" id="time" placeholder="Time">
+        </p>
+        <br/>
+        <a class="button success-button toggle-button" href="#" onclick="renderResults()">Render results</a>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="content">
+        <h3 class="room-title">Particulate Matter 2.5</h3>
+        <hr />
+        <canvas id="chart_2_5"></canvas>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="content">
+        <h3 class="room-title">Particulate Matter 10</h3>
+        <hr />
+        <canvas id="chart_10"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+  var all_stations = []
+  function loadCharts(pm_10_values,pm_25_values,labels){
+
+    var ctx_2_5 = document.getElementById("chart_2_5").getContext('2d');
+    var ctx_10 = document.getElementById("chart_10").getContext('2d');
+    // 3rd and 4th paramters are x and y data (values vs time ..)
+    init_map(ctx_2_5,"pm 2.5",labels,pm_10_values)
+    init_map(ctx_10,"pm 10",labels,pm_25_values)
+  }
+  function init_map(chart, name, labels,data_points){
+        var mychart = new Chart(chart,{
+      "type":"line",
+      "data":{
+      "labels":labels,
+      "datasets":[{
+      "label":name,
+      "data":data_points,
+      "fill":false,
+      "borderColor":"rgb(75, 192, 192)",
+      "lineTension":0.1}
+      ]},
+      "options":{}
+    }); 
+  }
+  function init_select_stations(){
+    // initialize the selection of stations available in the Database..
+    var dynamicSelect = document.getElementById("select_station");
+    var xhttp = new XMLHttpRequest();
+
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+
+          var obj = JSON.parse(this.responseText);
+          for (var i = 0; i < obj.length; i++) {
+
+            var station = obj[i]
+            var name = "Station - "+(i+1)
+
+
+            dynamicSelect.innerHTML += "<option value=\""+station.station_id+"\" >"+name+"</option>";
+
+          }
+        }
+      };
+      xhttp.open("GET", "https://territoire.emse.fr/applications/air-quality-control/station-info", true);
+      //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send(null);
+  }
+  function renderResults(){
+    console.log('enteredd ')
+    if(document.getElementById("start_date").value == ""){
+      swal("Error!", "Choose a starting date!", "error");
+    }else{
+
+      var currentdate = new Date(document.getElementById("start_date").value);
+      // var datetime = currentdate.getDate() + "/"
+      //                 + (currentdate.getMonth()+1)  + "/" 
+      //                 + currentdate.getFullYear() + " "  
+      //                 + currentdate.getHours() + ":"  
+      //                 + currentdate.getMinutes() + ":" 
+      //                 + currentdate.getSeconds();
+      //15/01/20 14:26:33
+
+      var chosen_date = currentdate.getDate()+"/"+(currentdate.getMonth()+1)+"/"+currentdate.getFullYear()+" "+document.getElementById("time").value+":00"
+      var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+
+        
+            var obj = JSON.parse(this.responseText);
+            
+            // pm_10 and pm_25 stores the value recieved from the API 
+            var pm_10 = []
+            var pm_25 = []
+            var labels = []
+            console
+            for (var i = 0; i < obj.length; i++) {
+
+              var time = obj[i].currenttime
+              var pm_10_value = obj[i].pm10
+              var pm_25_value = obj[i].pm25
+              pm_10.push(pm_10_value)
+              pm_25.push(pm_25_value)
+              
+              labels.push(time)
+            }
+            loadCharts(pm_10,pm_25,labels)
+          }
+        }
+
+        var selectedStation = document.getElementById("select_station").value;
+        xhttp.open("GET", "https://territoire.emse.fr/applications/air-quality-control/sensor-value?id="+selectedStation+"&startingdate="+chosen_date, true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      xhttp.send(null);
+    } 
+  }
+  var timepicker = new TimePicker('time', {
+  lang: 'en',
+  theme: 'dark'
+});
+timepicker.on('change', function(evt) {
+  
+  var value = (evt.hour || '00') + ':' + (evt.minute || '00');
+  evt.element.value = value;
+
+});
+  $(document).ready(function(){      
+      loadCharts([],[],[]);
+      init_select_stations();  
+    }); 
+</script>
+</html>
+

@@ -1,0 +1,135 @@
+html{
+margin: 0;
+padding: 0;
+min-width: 1000px;
+overflow-y: auto;
+overflow-x: auto;
+}
+body{
+margin: 0;
+padding: 0;
+min-width: 1000px;
+background-color:rgb(235,235,235);
+}
+.header {
+width: 100%;
+color: rgb(240,240,240);
+background: rgb(70,110,150);
+height: 80px;
+min-width: 1000px;
+padding: 0;
+margin: 0;
+}
+.header #logoHeader {
+display: inline-block;
+width: 100px;
+height: 78px;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 10px;
+}
+.header #titleHeader {
+display: inline-block;
+vertical-align: top;
+margin: 0;
+padding: 0;
+margin-left: 20px;
+height: 78px;
+line-height: 75px;
+width: 550px;
+font-weight: bold;
+font-size: 20px;
+}
+.header #descriptionHeader {
+width: 300px;
+height: 80px;
+float: right;
+padding: 0;
+margin-right: 10px;
+}
+.header #descriptionHeader #logout{
+width: 300px;
+height: 40px;
+padding: 5px;
+margin: 0;
+text-align: right;
+}
+.maincontent {
+position:absolute;
+top: 80px;
+bottom: 50px;
+left: 0;
+right: 0;
+min-width: 1000px;
+padding: 0;
+margin: 0;
+}
+.header #descriptionHeader #place{
+width: 300px;
+height: 40px;
+padding: 0;
+margin: 0;
+font-weight: bold;
+font-size: 16px;
+text-align: right;
+line-height: 30px;
+}
+.footer {
+position: absolute;
+bottom:0px;
+left:0px;
+right:0px;
+height:50px;
+min-height:50px;
+min-width:1000px;
+border-top: solid 1px rgb(70,110,150);
+text-align : center;
+}
+#menu {
+display: inline-block;
+width: 50px;
+height: calc(100% - 5px);
+padding: 0;
+margin: 0;
+background: rgb(100,100,100);
+border-top: 2px solid rgb(255,255,255);
+border-bottom: 2px solid rgb(255,255,255);
+border-right: 2px solid rgb(255,255,255);
+}
+div#menu ul {
+padding: 0;
+margin: 0;
+width: 50px;
+background: rgb(100,100,100);
+list-style-type: none;
+}
+div#menu li {
+padding: 0;
+margin: 0;
+width: 50px;
+height: 40px;
+text-align: center;
+border-bottom: 2px solid rgb(255,255,255);
+}
+div#menu li:hover {
+background: rgb(70,110,150);
+}
+#map {
+display: inline-block;
+vertical-align: top;
+height: 100%;
+width: calc(100% - 53px);
+padding: 0;
+margin: 0;
+margin-left: -5px;
+}
+#status {
+position : absolute;
+right: 0;
+bottom: 0;
+background-color: rgba(70,110,150,0.8);
+width: 250px;
+height: 150px;
+padding-left: 10px;
+color: rgb(240,240,240);
+}

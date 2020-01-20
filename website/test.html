@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- À personnaliser -->
+    <title>Titre onglet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="https://territoire.emse.fr/applications/air-quality-control/stylesheets/monstyle.css">
+    <link rel="stylesheet" href="https://openlayers.org/en/v5.2.0/css/ol.css">
+    <script src="https://openlayers.org/en/v5.2.0/build/ol.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"> </script>
+  </head>
+  
+  <body>
+    <div class="header">
+      <div id="logoHeader"><img src="https://territoire.emse.fr/applications/air-quality-control/images/its.jpeg" align="left" width="70px" height="80px"></div>
+      <!-- À personnaliser -->
+      <div id="titleHeader"> Titre de la page </div>
+      <div id="descriptionHeader">
+	<div id="place">Saint-Étienne</div>
+      </div>
+    </div>
+    
+    <div class="maincontent">
+      <div id="menu">
+	<ul>
+	  <li onclick="clickonitem1()">item 1</li>
+	  <li onclick="clickonitem2()">item 2</li>
+	  <li onclick="clickonitem3()">item 3</li>
+	  <li onclick="clickonitem4()">item 4</li>
+	  <li onclick="clickonitem5()">item 5</li>
+	</ul>
+      </div>
+
+      <div id="map"></div>
+      <div id="status"><b>Entity information</b> <br /> </div>
+    </div>
+    <div class="footer"><p>École des Mines de Saint-Étienne</p></div>
+  </body>
+
+  <script>
+    var carte = new ol.Map();
+    var layer1 = new ol.layer.Tile();
+    var layer2 = new ol.layer.Tile();
+    var layer3 = new ol.layer.Tile();
+    var layer4 = new ol.layer.Tile();
+    var layer5 = new ol.layer.Tile();
+    var fondCarte = new ol.layer.Tile();
+    var selectSingleClick = new ol.interaction.Select();
+    var url_mapserv = 'https://territoire.emse.fr/cgi-bin/mapserv?';
+    var mymap = '/data/applications/air-quality-control/public/mapserv/airqualitycontrol.map';
+
+    function clickonitem1()
+    {
+      if(layer1.getVisible())
+      {
+        layer1.setVisible(false);
+      }
+      else
+      {
+        if(layer2.getVisible())
+        {
+          layer2.setVisible(false);
+        }
+        layer1.setVisible(true);
+      }
+    }
+
+    function clickonitem2()
+    {
+      if(layer2.getVisible())
+      {
+        layer2.setVisible(false);
+      }
+      else
+      {
+        if(layer1.getVisible())
+        {
+          layer1.setVisible(false);
+        }
+        layer2.setVisible(true);
+      }
+    }
+
+    /* À compléter */
+    function clickonitem3()
+    {
+      console.log("je clique sur item 4");    
+    }
+
+    /* À compléter */
+    function clickonitem4()
+    {
+      console.log("je clique sur item 4");    
+    }
+
+    /* À compléter */
+    function clickonitem5()
+    {
+      console.log("je clique sur item 5");    
+    }
+
+    function createMap(){
+      var valcenter = ol.proj.transform([4.38850,45.43660], 'EPSG:4326', 'EPSG:3857');
+      var valextent = ol.extent.applyTransform([4.30108, 45.49327, 4.54775, 45.38542], ol.proj.getTransform("EPSG:4326", "EPSG:3857"));
+    
+      fondCarte = new ol.layer.Tile({
+        source: new ol.source.XYZ(
+        {
+          /* À modifier avec votre token : pk.eyJ1IjoiZmFiaWVuLWVtc2UiLCJhIjoiY2l6anYyMXpjMDA0cjJ3dGZ0Z3NrdDUxNCJ9.37SAR2gk4Hur4a8ZTkbRSw */
+          url: 'https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZmFiaWVuLWVtc2UiLCJhIjoiY2l6anYyMXpjMDA0cjJ3dGZ0Z3NrdDUxNCJ9.37SAR2gk4Hur4a8ZTkbRSw' 
+	})
+      });
+
+      carte = new ol.Map({
+	target: 'map',
+	renderer: 'canvas',		
+	view: new ol.View({
+	    projection: 'EPSG:3857',
+	    center: valcenter,
+	    zoom: 14,
+	    minZoom: 10,
+	    maxZoom: 18,
+	    extent: valextent	    
+	}),
+	controls: ol.control.defaults().extend([
+	    new ol.control.Zoom(),
+            new ol.control.OverviewMap(),
+            new ol.control.ScaleLine()
+        ])
+      });
+      carte.addLayer(fondCarte);
+    }
+
+    /* À modifier par rapport à vos paramètres (EPSG !) */
+    function createStationWMS()
+    {
+      var rsu_source_wms = new ol.source.TileWMS({
+        url: url_mapserv+'map='+mymap,
+        params: {'LAYERS': 'Station', 'SLD': 'https://territoire.emse.fr/applications/air-quality-control/mapserv/monsld.xml', 'TILED': true, 'proj': 'EPSG:4326'},        
+        crossOrigin: 'null',
+        projection: 'EPSG:3857'
+      }); 
+
+      layer1 = new ol.layer.Tile({
+        source: rsu_source_wms,
+        visible: false
+      });
+      layer1.set('name', 'station');
+      layer1.setZIndex(2);
+      carte.addLayer(layer1);
+    }
+    
+    /* À modifier par rapport à vos paramètres */
+    function createStationWFS(){
+       var rsu_gml2 = new ol.format.GML2({featureType : "Station", featureNS : "http://mapserver.gis.umn.edu/mapserver", version: "1.1.0", featurePrefix: "ms", geometryName: "msGeometry",srsName: 'EPSG:4326'});
+    
+       var rsu_source_wfs = new ol.source.Vector({
+         format: rsu_gml2,
+         url: function(extent) {
+           return url_mapserv + 'map=' + mymap + '&service=WFS&version=1.1.0&request=GetFeature&outputformat=GML2&typename=Station&srsname=EPSG:4326&bbox='+ extent.join(',') +',EPSG:3857';
+         },
+         strategy: ol.loadingstrategy.bbox 
+       });
+    
+       layer2 = new ol.layer.Vector({
+         source: rsu_source_wfs,
+         style: [new ol.style.Style({
+     	  image: new ol.style.RegularShape({
+     	    fill: new ol.style.Fill({		
+     	      color: 'rgba(220,20,60,0.4)'
+     	    }),
+     	    stroke: new ol.style.Stroke({
+     	      color: 'rgba(220,20,60,0.8)',
+     	      width: 2
+     	    }),
+     	    points: 3,
+     	    radius: 10,
+     	    rotation: Math.PI / 4,
+     	    angle: 0
+           })
+         })],
+         visible: false
+       });
+       
+       layer2.set('name', 'station_wfs');
+       layer2.setZIndex(2);
+       carte.addLayer(layer2);
+     }
+
+    /* Cet appel fonctionne en utilisant le fichier template_rsu.html qui doit être déposé du côté du serveur cartographique*/
+    /* Pour personnaliser le fichier il faut modifier le fichier mapfile */
+    function manageMouseWMS()
+    {      
+      carte.on('singleclick', function(evt){
+        if(layer1.getVisible())
+        {          
+          document.getElementById('status').innerHTML = '<b>Entity information</b> <br />';
+          var viewResolution = /** @type {number} */ (carte.getView().getResolution());
+          var url = layer1.getSource().getGetFeatureInfoUrl(evt.coordinate, viewResolution, 'EPSG:3857',{'INFO_FORMAT': 'text/html'});
+	  if (url) {
+            document.getElementById('status').innerHTML +=
+              '<iframe class="iframeborder" seamless height="125" width="235" src="' + url + '"></iframe>';
+          }
+        }
+      });
+    }
+
+     function manageMouseWFS()
+    {
+       selectSingleClick = new ol.interaction.Select({
+         layers: function(layer) {
+           return ( layer.get('name') === 'station_wfs' && layer.getVisible() );
+         },
+         condition: ol.events.condition.click,
+         style: [new ol.style.Style({
+     	    image: new ol.style.RegularShape({
+     		fill: new ol.style.Fill({		
+     		    color: 'rgba(20,255,20,0.4)'
+     		}),
+     		stroke: new ol.style.Stroke({
+     		    color: 'rgba(220,20,60,0.8)',
+     		    width: 2
+     		}),
+     		points: 3,
+     		radius: 10,
+     		rotation: Math.PI / 4,
+     		angle: 0
+             })
+         })]
+       });
+           
+       selectSingleClick.on('select', function(e) {
+         var tabfeatures = e.target.getFeatures();
+         var texthtml = '<b>Entity information</b><h4>Station information WFS</h4><p>';
+     	tabfeatures.forEach(function(f){	
+     	texthtml+='ID: ' + f.get('station_id') + ' - ';
+     	texthtml+='Temperature: ' + f.get('temperature') + '<br />';
+     	texthtml+='Pressure: ' + f.get('pressure') + '<br />';
+     	texthtml+='Time: ' + f.get('currenttime') + '<br />'; 
+     	});
+     	texthtml += '</p>';
+         $('#status').html(texthtml); 
+       });
+       carte.addInteraction(selectSingleClick);
+     }
+       
+    $(document).ready(function(){      
+      createMap();
+      createStationWMS();
+      manageMouseWMS();      
+      createStationWFS();      
+      manageMouseWFS();      
+    });      
+      
+    </script>
+</html>
+
