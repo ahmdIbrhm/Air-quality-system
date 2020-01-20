@@ -11,9 +11,9 @@ database on the Territory Platform of Ecole des Mines de Sainte Etienne. A mobil
 cation is used to configure the sensors and deploy them in a specific place in the city. In
 addition to that, a web-page is used to visualize these stored data.
 The objectives of this project are the following:
-• Store history information about air quality in different stations deployed at different
+* Store history information about air quality in different stations deployed at different
 places in the city.
-• Visualize the history of measurements of a specific station.
-• Visualize the current state of air quality on a specific station on a map.
-• Deploy a new station in any place.
-• Shift any station’s location on run time.
+* Visualize the history of measurements of a specific station.
+* Visualize the current state of air quality on a specific station on a map.
+* Deploy a new station in any place.
+* Shift any station’s location on run time.
